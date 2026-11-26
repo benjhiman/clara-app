@@ -10,6 +10,7 @@ import Header from "../../../components/Header";
 import AdminNav from "../../AdminNav";
 import { adminCancel, adminCharge, adminComplete, updateJob } from "../../actions";
 import AssignSelect from "../../AssignSelect";
+import { PAY } from "../../labels";
 
 export default async function AdminTrabajo({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ ok?: string; error?: string }> }) {
   const { id } = await params;
@@ -53,7 +54,7 @@ export default async function AdminTrabajo({ params, searchParams }: { params: P
             </strong>
             {b.extras.length > 0 && <div>Extras: {b.extras.map((e) => EXTRA_NAMES[e]?.es).join(", ")}</div>}
             <div className="muted small">
-              {b.priceCents > 0 ? formatUSD(b.priceCents) : "Incluido en el plan"} · pago: {b.paymentStatus}
+              {b.priceCents > 0 ? formatUSD(b.priceCents) : "Incluido en el plan"} · {PAY[b.paymentStatus]?.label ?? b.paymentStatus}
             </div>
           </div>
           <div>

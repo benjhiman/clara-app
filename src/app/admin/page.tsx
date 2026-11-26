@@ -10,17 +10,10 @@ import { SERVICE_NAMES, STATUS_NAMES, formatDate } from "@/lib/i18n";
 import Header from "../components/Header";
 import AdminNav from "./AdminNav";
 import AssignSelect from "./AssignSelect";
+import { PAY } from "./labels";
 
 export const metadata: Metadata = { title: "Admin" };
 
-const PAY: Record<string, { label: string; cls: string }> = {
-  paid: { label: "Pagado", cls: "ok" },
-  included: { label: "En el plan", cls: "info" },
-  to_charge: { label: "Se cobra al terminar", cls: "warn" },
-  failed: { label: "Cobro falló", cls: "bad" },
-  refunded: { label: "Devuelto", cls: "" },
-  unpaid: { label: "Sin pagar", cls: "" },
-};
 
 export default async function AdminPage({ searchParams }: { searchParams: Promise<{ desde?: string; sinAsignar?: string }> }) {
   await requireUser(["admin"], "/admin");
