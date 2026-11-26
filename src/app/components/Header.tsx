@@ -10,7 +10,11 @@ export default async function Header({ locale, path, showLang = true }: { locale
   const demoParts = [demo.payments && "pagos", demo.email && "emails", demo.video && "videos"].filter(Boolean);
   return (
     <>
-      {demoParts.length > 0 && (
+      {demo.public ? (
+        <div className="demo-banner">
+          Demo con datos de ejemplo: no se cobra ni se envía nada. <Link href="/entrar" style={{ color: "#FF7A59" }}>Cambiar de usuario</Link>
+        </div>
+      ) : demoParts.length > 0 && (
         <div className="demo-banner">Modo demo: {demoParts.join(", ")} de prueba. Nada se cobra ni se envía de verdad.</div>
       )}
       <header className="top">

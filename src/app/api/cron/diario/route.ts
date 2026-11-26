@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { env } from "@/lib/env";
+import { demo, env } from "@/lib/env";
 import { extendAllSubscriptions, sendReminders } from "@/lib/bookings";
 import { deleteExpiredVideos } from "@/lib/videos";
 
@@ -9,7 +9,7 @@ export async function GET(req: Request) {
   if (env.cronSecret && req.headers.get("authorization") !== `Bearer ${env.cronSecret}`) {
     return NextResponse.json({ error: "no autorizado" }, { status: 401 });
   }
-  if (!env.cronSecret && env.isProd) return NextResponse.json({ error: "falta CRON_SECRET" }, { status: 500 });
+  if (!env.cronSecret && env.isProd && !demo.public) return NextResponse.json({ error: "falta CRON_SECRET" }, { status: 500 });
   const plans = await extendAllSubscriptions();
   const reminders = await sendReminders();
   const deleted = await deleteExpiredVideos();

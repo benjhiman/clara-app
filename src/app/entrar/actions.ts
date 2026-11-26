@@ -1,6 +1,9 @@
 "use server";
 import { redirect } from "next/navigation";
-import { consumeLoginToken, createLoginToken, homeFor, normalizeEmail, safeNext } from "@/lib/auth";
+import { eq } from "drizzle-orm";
+import { getDb, schema } from "@/db";
+import { DEMO_USERS } from "@/db/seed";
+import { consumeLoginToken, createLoginToken, homeFor, normalizeEmail, safeNext, startSession } from "@/lib/auth";
 import { sendEmail } from "@/lib/email";
 import { demo, env } from "@/lib/env";
 import { getLocale } from "@/lib/locale";
@@ -32,7 +35,17 @@ export async function requestLink(_: LoginState, form: FormData): Promise<LoginS
     button: { label: lang === "en" ? "Sign in" : "Entrar", url: link },
   });
   // En la compu de desarrollo, sin servicio de email, mostramos el link en pantalla.
-  return { sent: true, devLink: demo.email && !env.isProd ? link : undefined };
+  return { sent: true, devLink: demo.email && (!env.isProd || demo.public) ? link : undefined };
+}
+
+/** Demo pública: entrar con un toque como uno de los usuarios de ejemplo. */
+export async function demoLogin(role: keyof typeof DEMO_USERS) {
+  if (!demo.public || !(role in DEMO_USERS)) redirect("/entrar");
+  const db = await getDb();
+  const [u] = await db.select().from(schema.users).where(eq(schema.users.email, DEMO_USERS[role]));
+  if (!u) redirect("/entrar");
+  await startSession(u);
+  redirect(homeFor(u.role));
 }
 
 export async function confirmLogin(form: FormData) {

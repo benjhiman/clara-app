@@ -22,6 +22,12 @@ Si falta la clave de un servicio, la app usa un modo de prueba para esa parte y 
 | `RESEND_API_KEY` | Los emails se muestran en la consola (y el link para entrar, en pantalla) |
 | `CLOUDFLARE_*` | Los videos se guardan en `.data/videos/` |
 
+## Demo pública (para mostrarla)
+
+Con la variable `DEMO_PUBLIC=1` la app carga datos de ejemplo (clientes, un plan, turnovers de Airbnb, una limpiadora y videos) y en `/entrar` aparecen botones para entrar con un toque como cliente, host, limpiadora o socio. No cobra ni manda emails, y los videos que se suben se reemplazan por un video de ejemplo. Se desactiva sola si se carga una clave de Stripe.
+
+Para publicarla en Vercel: importar el repositorio, poner `DEMO_PUBLIC=1` y `SESSION_SECRET` (cualquier frase de 32+ letras), y en *Storage* crear una base Neon (gratis) para que los datos no se borren.
+
 ## Probarlo en tu compu
 
 Necesitás [Node.js 22](https://nodejs.org).

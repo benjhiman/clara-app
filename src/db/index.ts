@@ -18,17 +18,26 @@ async function create(): Promise<DB> {
     const db = drizzlePg(client, { schema });
     const { migrate } = await import("drizzle-orm/postgres-js/migrator");
     await migrate(db, { migrationsFolder: MIGRATIONS });
+    await maybeSeed(db);
     return db;
   }
   // Modo demo: base Postgres embebida guardada en .data/
   const { PGlite } = await import("@electric-sql/pglite");
   const { drizzle } = await import("drizzle-orm/pglite");
   const { migrate } = await import("drizzle-orm/pglite/migrator");
-  const dir = process.env.PGLITE_DIR ?? path.join(process.cwd(), ".data", "pglite");
+  // En Vercel solo se puede escribir en /tmp (y se borra seguido): usar DATABASE_URL para algo estable.
+  const dir = process.env.PGLITE_DIR ?? (process.env.VERCEL ? "/tmp/pglite" : path.join(process.cwd(), ".data", "pglite"));
   const client = dir === "memory" ? new PGlite() : new PGlite(dir);
   const db = drizzle(client, { schema });
   await migrate(db, { migrationsFolder: MIGRATIONS });
+  await maybeSeed(db as unknown as DB);
   return db as unknown as DB;
+}
+
+async function maybeSeed(db: DB) {
+  if (process.env.DEMO_PUBLIC !== "1") return;
+  const { seedDemo } = await import("./seed");
+  await seedDemo(db);
 }
 
 export function getDb(): Promise<DB> {

@@ -20,6 +20,8 @@ export const env = {
 };
 
 export const demo = {
+  /** Demo pública con datos de ejemplo y botones para entrar sin email. Nunca en la versión real. */
+  public: process.env.DEMO_PUBLIC === "1" && !process.env.STRIPE_SECRET_KEY,
   payments: !env.stripeKey,
   email: !env.resendKey,
   video: !(env.cfAccount && env.cfStreamToken),

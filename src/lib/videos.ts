@@ -73,7 +73,7 @@ export async function createStreamUpload(booking: Booking, uploader: User, uploa
   return { location, video };
 }
 
-export async function createLocalUpload(booking: Booking, uploader: User, size: number) {
+export async function createLocalUpload(booking: Booking, uploader: User, size: number, sample = false) {
   const db = await getDb();
   const id = crypto.randomUUID();
   const [video] = await db
@@ -82,8 +82,8 @@ export async function createLocalUpload(booking: Booking, uploader: User, size: 
       id,
       bookingId: booking.id,
       uploadedBy: uploader.id,
-      provider: "local",
-      providerId: id,
+      provider: sample ? "sample" : "local",
+      providerId: sample ? "demo" : id,
       status: "uploading",
       sizeBytes: size,
       expiresAt: expiresAtFrom(),
@@ -95,7 +95,7 @@ export async function createLocalUpload(booking: Booking, uploader: User, size: 
 /** El limpiador avisa que terminó de subir. Con Stream queda "procesando" hasta el webhook. */
 export async function markUploaded(video: Video) {
   const db = await getDb();
-  if (video.provider === "local") {
+  if (video.provider === "local" || video.provider === "sample") {
     await db.update(schema.videos).set({ status: "ready" }).where(eq(schema.videos.id, video.id));
     await notifyVideoReady(video.id);
     return;
@@ -149,6 +149,7 @@ export function verifyStreamWebhook(body: string, header: string | null): boolea
 export async function playbackUrl(video: Video): Promise<{ kind: "iframe" | "file"; url: string } | null> {
   if (video.status !== "ready") return null;
   if (video.provider === "local") return { kind: "file", url: `/api/videos/${video.id}/archivo` };
+  if (video.provider === "sample") return { kind: "file", url: "/demo-video.mp4" };
   const res = await fetch(`${CF()}/${video.providerId}/token`, {
     method: "POST",
     headers: { ...cfHeaders(), "Content-Type": "application/json" },

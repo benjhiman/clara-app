@@ -27,7 +27,13 @@ export default function Uploader({ bookingId, mode }: { bookingId: string; mode:
           body: JSON.stringify({ bookingId, size: file.size }),
         });
         if (!res.ok) throw new Error("No se pudo empezar la subida");
-        const { id, uploadUrl } = (await res.json()) as { id: string; uploadUrl: string };
+        const { id, uploadUrl } = (await res.json()) as { id: string; uploadUrl: string | null };
+        if (!uploadUrl) {
+          // Demo pública: no se sube el archivo, se usa un video de ejemplo
+          setProgress(100);
+          await finish(id);
+          return;
+        }
         await new Promise<void>((resolve, reject) => {
           const xhr = new XMLHttpRequest();
           xhr.open("PUT", uploadUrl);

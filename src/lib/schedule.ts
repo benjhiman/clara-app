@@ -78,7 +78,7 @@ export type PlannedVisit = { date: string; service: "essential" | "plus" | "plus
 /**
  * Visitas de un plan entre `from` y `through` (inclusive).
  * Essential: cada 14 días desde la fecha de inicio.
- * Plus: semanal; la primera visita de cada mes es la limpieza profunda.
+ * Plus: semanal; una de cada 4 visitas (empezando por la primera) es la limpieza profunda.
  */
 export function planVisits(
   plan: PlanService,
@@ -89,15 +89,15 @@ export function planVisits(
   const step = plan === "essential" ? 14 : 7;
   const out: PlannedVisit[] = [];
   let d = startDate;
-  while (d < from) d = addDays(d, step);
-  for (; d <= through; d = addDays(d, step)) {
+  let i = 0;
+  while (d < from) {
+    d = addDays(d, step);
+    i++;
+  }
+  for (; d <= through; d = addDays(d, step), i++) {
     if (plan === "essential") out.push({ date: d, service: "essential" });
-    else {
-      // Es la primera visita del mes si la semana anterior cae en otro mes (o es la de inicio).
-      const prev = addDays(d, -7);
-      const firstOfMonth = d === startDate || prev.slice(0, 7) !== d.slice(0, 7);
-      out.push({ date: d, service: firstOfMonth ? "plus_deep" : "plus" });
-    }
+    // Plus: 4 visitas por ciclo; la primera de cada ciclo es la limpieza profunda.
+    else out.push({ date: d, service: i % 4 === 0 ? "plus_deep" : "plus" });
   }
   return out;
 }

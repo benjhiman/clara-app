@@ -9,6 +9,7 @@ export async function POST(req: Request) {
   const { bookingId, size } = (await req.json()) as { bookingId?: string; size?: number };
   const ctx = await bookingForUpload(bookingId ?? null);
   if (!ctx) return NextResponse.json({ error: "no autorizado" }, { status: 403 });
-  const video = await createLocalUpload(ctx.booking, ctx.user, Number(size) || 0);
-  return NextResponse.json({ id: video.id, uploadUrl: `/api/videos/${video.id}/archivo` });
+  // En la demo pública no guardamos el archivo: se usa un video de ejemplo.
+  const video = await createLocalUpload(ctx.booking, ctx.user, Number(size) || 0, demo.public);
+  return NextResponse.json({ id: video.id, uploadUrl: demo.public ? null : `/api/videos/${video.id}/archivo` });
 }

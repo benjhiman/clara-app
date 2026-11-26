@@ -96,6 +96,7 @@ export default async function TrabajoPage({ params }: { params: Promise<{ id: st
             </p>
           ))}
           {b.status !== "canceled" && <Uploader bookingId={b.id} mode={demo.video ? "local" : "stream"} />}
+          {demo.public && <p className="muted small">Demo: el archivo que elijas no se sube, se usa un video de ejemplo.</p>}
         </div>
 
         <div className="card stack">

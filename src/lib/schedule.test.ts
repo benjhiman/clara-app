@@ -11,10 +11,12 @@ describe("schedule", () => {
     const v = planVisits("essential", "2026-12-01", "2026-12-01", "2026-12-31");
     expect(v.map((x) => x.date)).toEqual(["2026-12-01", "2026-12-15", "2026-12-29"]);
   });
-  it("Plus: profunda la primera visita del mes", () => {
-    const v = planVisits("plus", "2026-12-16", "2026-12-16", "2027-01-20");
-    expect(v.map((x) => x.service)).toEqual(["plus_deep", "plus", "plus", "plus_deep", "plus", "plus"]);
-    expect(v[3].date).toBe("2027-01-06");
+  it("Plus: una profunda cada 4 visitas", () => {
+    const v = planVisits("plus", "2026-11-30", "2026-11-30", "2027-01-20");
+    expect(v.map((x) => x.service)).toEqual(["plus_deep", "plus", "plus", "plus", "plus_deep", "plus", "plus", "plus"]);
+    expect(v[4].date).toBe("2026-12-28");
+    const later = planVisits("plus", "2026-11-30", "2026-12-20", "2026-12-31");
+    expect(later.map((x) => x.service)).toEqual(["plus", "plus_deep"]);
   });
   it("planVisits desde una fecha posterior mantiene el ritmo", () => {
     const v = planVisits("essential", "2026-12-01", "2026-12-10", "2026-12-31");
